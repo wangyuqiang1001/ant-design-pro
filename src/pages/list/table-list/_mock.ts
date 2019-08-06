@@ -28,10 +28,12 @@ for (let i = 0; i < 8; i += 1) {
 function getRule(
   req: { url: any },
   res: {
-    json: (arg0: {
-      list: TableListItem[];
-      pagination: { total: number; pageSize: number; current: number };
-    }) => void;
+    json: (
+      arg0: {
+        list: TableListItem[];
+        pagination: { total: number; pageSize: number; current: number };
+      },
+    ) => void;
   },
   u: any,
 ) {

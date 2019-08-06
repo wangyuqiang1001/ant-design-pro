@@ -3,15 +3,14 @@
  * You can view component api by:
  * https://github.com/ant-design/ant-design-pro-layout
  */
-
 import { ConnectProps, ConnectState } from '@/models/connect';
 import ProLayout, {
   MenuDataItem,
   BasicLayoutProps as ProLayoutProps,
   Settings,
+  SettingDrawer,
 } from '@ant-design/pro-layout';
 import React, { useState } from 'react';
-
 import Authorized from '@/utils/Authorized';
 import Link from 'umi/link';
 import RightContent from '@/components/GlobalHeader/RightContent';
@@ -19,7 +18,6 @@ import { connect } from 'dva';
 import { formatMessage } from 'umi-plugin-react/locale';
 import { isAntDesignPro } from '@/utils/utils';
 import logo from '../assets/logo.svg';
-
 export interface BasicLayoutProps extends ProLayoutProps, Omit<ConnectProps, 'location'> {
   breadcrumbNameMap: {
     [path: string]: MenuDataItem;
@@ -31,16 +29,13 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
     [path: string]: MenuDataItem;
   };
 };
-
 /**
  * use Authorized check all menu item
  */
+
 const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
   menuList.map(item => {
-    const localItem = {
-      ...item,
-      children: item.children ? menuDataRender(item.children) : [],
-    };
+    const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
@@ -48,6 +43,7 @@ const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
   if (!isAntDesignPro()) {
     return defaultDom;
   }
+
   return (
     <>
       {defaultDom}
@@ -85,10 +81,10 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       });
     }
   });
-
   /**
    * init variables
    */
+
   const handleMenuCollapse = (payload: boolean): void =>
     dispatch &&
     dispatch({
@@ -97,31 +93,42 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     });
 
   return (
-    <ProLayout
-      logo={logo}
-      onCollapse={handleMenuCollapse}
-      menuItemRender={(menuItemProps, defaultDom) => (
-        <Link to={menuItemProps.path}>{defaultDom}</Link>
-      )}
-      breadcrumbRender={(routers = []) => [
-        {
-          path: '/',
-          breadcrumbName: formatMessage({
-            id: 'menu.home',
-            defaultMessage: 'Home',
-          }),
-        },
-        ...routers,
-      ]}
-      footerRender={footerRender}
-      menuDataRender={menuDataRender}
-      formatMessage={formatMessage}
-      rightContentRender={rightProps => <RightContent {...rightProps} />}
-      {...props}
-      {...settings}
-    >
-      {children}
-    </ProLayout>
+    <>
+      <ProLayout
+        logo={logo}
+        onCollapse={handleMenuCollapse}
+        menuItemRender={(menuItemProps, defaultDom) => (
+          <Link to={menuItemProps.path}>{defaultDom}</Link>
+        )}
+        breadcrumbRender={(routers = []) => [
+          {
+            path: '/',
+            breadcrumbName: formatMessage({
+              id: 'menu.home',
+              defaultMessage: 'Home',
+            }),
+          },
+          ...routers,
+        ]}
+        footerRender={footerRender}
+        menuDataRender={menuDataRender}
+        formatMessage={formatMessage}
+        rightContentRender={rightProps => <RightContent {...rightProps} />}
+        {...props}
+        {...settings}
+      >
+        {children}
+      </ProLayout>
+      <SettingDrawer
+        settings={settings}
+        onSettingChange={config =>
+          dispatch({
+            type: 'settings/changeSetting',
+            payload: config,
+          })
+        }
+      />
+    </>
   );
 };
 

@@ -7,7 +7,11 @@ const FormItem = Form.Item;
 
 interface CreateFormProps extends FormComponentProps {
   modalVisible: boolean;
-  handleAdd: (fieldsValue: { desc: string }) => void;
+  handleAdd: (
+    fieldsValue: {
+      desc: string;
+    },
+  ) => void;
   handleModalVisible: () => void;
 }
 const CreateForm: React.SFC<CreateFormProps> = props => {
